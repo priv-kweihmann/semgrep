@@ -164,11 +164,13 @@ let taint_config_of_rule default_config equivs file ast_and_errors
   sources_ranges
   |> List.iter (fun rwm ->
          let r = rwm.Range_with_metavars.r in
-         logger#flash "[taint] source: %d-%d\n" r.Range.start r.Range.end_);
+         logger#flash "[taint] file: %s source: %d-%d\n" file r.Range.start
+           r.Range.end_);
   sinks_ranges
   |> List.iter (fun rwm ->
          let r = rwm.Range_with_metavars.r in
-         logger#flash "[taint] sink: %d-%d\n" r.Range.start r.Range.end_);
+         logger#flash "[taint] file: %s sink: %d-%d\n" file r.Range.start
+           r.Range.end_);
   {
     Dataflow_tainting.filepath = file;
     rule_id = fst rule.R.id;
@@ -293,6 +295,8 @@ let check_rule rule match_hook (default_config, equivs) taint_spec xtarget =
 let check_def file lang taint_rules taint_configs ent_name fdef =
   let str_of_name name = Common.spf "%s:%d" (fst name.IL.ident) name.IL.sid in
 
+  logger#flash "check_def %s" ent_name;
+
   let in_env =
     List.fold_left
       (fun (i, env) par ->
@@ -322,7 +326,11 @@ let check_def file lang taint_rules taint_configs ent_name fdef =
     taint_rules
     |> List.iter (fun taint_rule ->
            let taint_config =
-             Hashtbl.find taint_configs (file, fst taint_rule.Rule.id)
+             try Hashtbl.find taint_configs (file, fst taint_rule.Rule.id)
+             with Not_found ->
+               logger#flash "cannot find taint config for rule %s"
+                 (fst taint_rule.Rule.id);
+               assert false
            in
            let fun_env = Hashtbl.create 8 in
            let mapping =
