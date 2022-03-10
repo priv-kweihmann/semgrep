@@ -328,8 +328,12 @@ let check_def file lang taint_rules taint_configs ent_name fdef =
            let taint_config =
              try Hashtbl.find taint_configs (file, fst taint_rule.Rule.id)
              with Not_found ->
+               taint_configs
+               |> Hashtbl.iter (fun (kf, kr) _ ->
+                      logger#flash "taint_configs: '%s' / rule '%s'" kf kr);
                logger#flash
-                 "cannot find taint config for file %s / rule %s (configs=%d)"
+                 "cannot find taint config for file '%s' / rule '%s' \
+                  (configs=%d)"
                  file (fst taint_rule.Rule.id)
                  (Hashtbl.length taint_configs);
                assert false
