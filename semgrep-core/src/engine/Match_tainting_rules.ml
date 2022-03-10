@@ -295,7 +295,7 @@ let check_rule rule match_hook (default_config, equivs) taint_spec xtarget =
 let check_def file lang taint_rules taint_configs ent_name fdef =
   let str_of_name name = Common.spf "%s:%d" (fst name.IL.ident) name.IL.sid in
 
-  logger#flash "check_def %s" ent_name;
+  logger#flash "semgrep / check_def %s" ent_name;
 
   let in_env =
     List.fold_left
@@ -328,8 +328,10 @@ let check_def file lang taint_rules taint_configs ent_name fdef =
            let taint_config =
              try Hashtbl.find taint_configs (file, fst taint_rule.Rule.id)
              with Not_found ->
-               logger#flash "cannot find taint config for rule %s"
-                 (fst taint_rule.Rule.id);
+               logger#flash
+                 "cannot find taint config for file %s / rule %s (configs=%d)"
+                 file (fst taint_rule.Rule.id)
+                 (Hashtbl.length taint_configs);
                assert false
            in
            let fun_env = Hashtbl.create 8 in
