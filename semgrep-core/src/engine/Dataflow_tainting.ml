@@ -132,7 +132,7 @@ type env = {
 
 let hook_tainted_function = ref None
 
-let is_tainted_function_hook config e =
+(* let is_tainted_function_hook config e =
   (* logger#flash "[taint] is_tainted_function_hook (file=%s, rule=%s): %s\n"
      config.filepath config.rule_id (G.show_expr e); *)
   match !hook_tainted_function with
@@ -142,7 +142,7 @@ let is_tainted_function_hook config e =
       |> List.filter_map (function
            | SrcToReturn t -> Some (Src t)
            | _ -> None)
-      |> Taint.of_list
+      |> Taint.of_list *)
 
 (*****************************************************************************)
 (* Helpers *)
@@ -296,7 +296,7 @@ let rec check_tainted_expr env exp =
         Hashtbl.find_opt env.fun_env (str_of_name fld)
         |> Option.value ~default:PM.Set.empty
         |> PM.Set.elements |> taint_of_pms
-    | Fetch
+    (* | Fetch
         {
           base =
             Var
@@ -315,7 +315,7 @@ let rec check_tainted_expr env exp =
         | SameAs eorig ->
             (* THINK: Do we need this here ? *)
             is_tainted_function_hook env.config eorig
-        | _ -> Taint.empty)
+        | _ -> Taint.empty) *)
     | Fetch { base; offset; _ } ->
         Taint.union (check_base base) (check_offset offset)
     | FixmeExp (_, _, Some e) -> check e
